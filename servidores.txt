@@ -1,0 +1,9 @@
+servidor,ambiente,uso_disco,estado
+srv-web01,produccion,45,Normal
+srv-web02,produccion,82,Alerta
+srv-db01,produccion,91,Critico
+srv-db02,desarrollo,67,Normal
+srv-app01,pruebas,73,Alerta
+srv-bkp01,produccion,58,Normal
+srv-mail01,produccion,95,Critico
+srv-dev01,desarrollo,30,Normal
