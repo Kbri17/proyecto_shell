@@ -39,12 +39,34 @@ copiar_archivo() {
     fi
 }
 
+# Convierte un digito octal (0-7) en texto: 6 -> "leer, escribir"
+describir_permiso() {
+    local d="$1" txt=""
+    (( d & 4 )) && txt+="leer, "
+    (( d & 2 )) && txt+="escribir, "
+    (( d & 1 )) && txt+="ejecutar, "
+    [ -z "$txt" ] && txt="ningun permiso, "
+    echo "${txt%, }"
+}
+
 cambiar_permisos() {
-    read -r -p "Archivo al que aplicar permisos 644: " nombre
+    read -r -p "Archivo al que cambiar permisos: " nombre
     if ! nombre_valido "$nombre" || [ ! -f "$PRUEBAS/$nombre" ]; then
         echo "El archivo no existe."; return
     fi
-    chmod 644 "$PRUEBAS/$nombre" && echo "Permisos actuales:" && ls -l "$PRUEBAS/$nombre"
+    echo "Permisos actuales:"
+    ls -l "$PRUEBAS/$nombre"
+    read -r -p "Nuevos permisos (3 digitos, ej. 644, 600, 755): " modo
+    if ! [[ "$modo" =~ ^[0-7]{3}$ ]]; then
+        echo "Permisos invalidos: use 3 digitos del 0 al 7."; return
+    fi
+    if chmod "$modo" "$PRUEBAS/$nombre"; then
+        echo "Permisos cambiados a $modo para $nombre:"
+        echo "  Dueno  : $(describir_permiso "${modo:0:1}")"
+        echo "  Grupo  : $(describir_permiso "${modo:1:1}")"
+        echo "  Otros  : $(describir_permiso "${modo:2:1}")"
+        ls -l "$PRUEBAS/$nombre"
+    fi
 }
 
 eliminar_archivo() {
@@ -91,7 +113,7 @@ while [ "$opcion" != "0" ]; do
     echo "===== GESTOR DE ARCHIVOS ====="
     echo "1) Crear archivo"
     echo "2) Copiar archivo"
-    echo "3) Cambiar permisos a 644"
+    echo "3) Cambiar permisos"
     echo "4) Eliminar archivo (con confirmacion)"
     echo "5) Eliminar archivos por fecha"
     echo "6) Listar archivos"
